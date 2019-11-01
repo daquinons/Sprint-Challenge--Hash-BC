@@ -89,4 +89,4 @@ if __name__ == '__main__':
             else:
                 print(data.get('message'))
         except:
-            print(r.content)
+            print(r)
