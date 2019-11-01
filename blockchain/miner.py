@@ -24,8 +24,11 @@ def proof_of_work(last_proof):
     start = timer()
 
     print("Searching for next proof")
-    proof = 0
-    #  TODO: Your code here
+
+    last_proof_hash = hashlib.sha256(str(last_proof).encode())
+    proof = sys.maxsize
+    while valid_proof(last_proof_hash, proof) is False:
+        proof -= 1
 
     print("Proof found: " + str(proof) + " in " + str(timer() - start))
     return proof
@@ -38,9 +41,13 @@ def valid_proof(last_hash, proof):
 
     IE:  last_hash: ...AE9123456, new hash 123456888...
     """
-
-    # TODO: Your code here!
-    pass
+    # set a guess
+    guess = f'{proof}'.encode()
+    # hash the guess
+    guess_hash = hashlib.sha256(guess).hexdigest()
+    last_hash = last_hash.hexdigest()
+    # return guess validity
+    return guess_hash[:6] == last_hash[-6:]
 
 
 if __name__ == '__main__':
@@ -71,10 +78,15 @@ if __name__ == '__main__':
         post_data = {"proof": new_proof,
                      "id": id}
 
+        print(post_data)
+
         r = requests.post(url=node + "/mine", json=post_data)
-        data = r.json()
-        if data.get('message') == 'New Block Forged':
-            coins_mined += 1
-            print("Total coins mined: " + str(coins_mined))
-        else:
-            print(data.get('message'))
+        try:
+            data = r.json()
+            if data.get('message') == 'New Block Forged':
+                coins_mined += 1
+                print("Total coins mined: " + str(coins_mined))
+            else:
+                print(data.get('message'))
+        except:
+            print(r)
